@@ -1,0 +1,32 @@
+```{r}
+library(checkpoint)
+checkpoint("2022-01-01")
+library(magrittr)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(readr)
+library(ggplot2)
+```
+
+```{r}
+df <-
+  "MM_2022W1 - cereal.xlsx" %>%
+  read_excel() %>%
+  pivot_longer(-c(name, Manufacturer, type), names_to = "feature") %>%
+  mutate(featureAbbr = case_when(feature == "calories per serving" ~ "Calories",
+                                 feature == "grams of protein" ~ "Protein",
+                                 feature == "grams of fat" ~ "Fat",
+                                 feature == "milligrams of sodium" ~ "Sodium",
+                                 feature == "grams of dietary fiber" ~ "Fiber",
+                                 feature == "grams of complex carbohydrates" ~ "Carbohydrates",
+                                 feature == "grams of sugars" ~ "Sugars",
+                                 feature == "milligrams of potassium" ~ "Potassium",
+                                 feature == "vitamins and minerals (% of FDA recommendation)" ~ "Vitamins/Minerals",
+                                 feature == "Display shelf" ~ "Shelf",
+                                 feature == "Weight in ounces per one serving" ~ "Ounces",
+                                 feature == "Number of cups in one serving" ~ "Cups",
+                                 feature == "Rating of cereal" ~ "**Rating**")) %>%
+  inner_join(., ., by = c("name", "Manufacturer", "type")) %>%
+  write_csv("MM_2022W1_long.csv")
+```
