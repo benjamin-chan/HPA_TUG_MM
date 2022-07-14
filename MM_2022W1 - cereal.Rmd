@@ -30,3 +30,49 @@ df <-
   inner_join(., ., by = c("name", "Manufacturer", "type")) %>%
   write_csv("MM_2022W1_long.csv")
 ```
+
+```{r}
+G <-
+  df %>%
+  select(-c(Manufacturer, type, feature)) %>%
+  inner_join(., ., by = "name") %>%
+  filter(featureAbbr.x > featureAbbr.y) %>%
+  ggplot(aes(x = value.x, y = value.y)) +
+    geom_point(alpha = 0.25) +
+    geom_smooth(method = "lm") +
+    scale_x_continuous("") +
+    scale_y_continuous("") +
+    facet_grid(featureAbbr.y ~ featureAbbr.x, scales = "free") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+ggsave("MM_2022W1_matrixPlot.png", width = 4000, height = 4000, units = "px")
+```
+
+```{r}
+G <-
+  df %>%
+  select(-c(Manufacturer, type, feature)) %>%
+  inner_join(., ., by = "name") %>%
+  filter(featureAbbr.x > featureAbbr.y) %>%
+  group_by(featureAbbr.x, featureAbbr.y) %>%
+  summarize(r = cor(value.x, value.y)) %>%
+  ungroup() %>%
+  ggplot(aes(x = featureAbbr.x, y = featureAbbr.y, fill = r)) +
+    geom_tile(color = "#f5f5f5") +
+    scale_fill_gradient2(low = "#ec8902",
+                         high = "#005595",
+                         mid = "#f2f2f2",
+                         midpoint = 0,
+                         limit = c(-1, 1),
+                         space = "Lab",
+                         name = "Correlation") +
+    scale_y_discrete(limits = rev) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.major = element_blank()) +
+    coord_fixed()
+ggsave("MM_2022W1_corrHeatmap.png", width = 1500, height = 1500, units = "px")
+```
