@@ -76,3 +76,54 @@ G <-
     coord_fixed()
 ggsave("MM_2022W1_corrHeatmap.png", width = 1500, height = 1500, units = "px")
 ```
+
+
+# Predictive model
+
+* Don't split into training/testing samples. Entire sample will be treated as a training sample.
+* Only interesting in variable importance.
+
+```{r}
+library(caret)
+df <-
+  read_excel(path = f) %>%
+  select(-c(name))
+model <- function (data, method) {
+  require(caret)
+  F <- formula(`Rating of cereal` ~ .)
+  ctrl <- trainControl(method = "cv",
+                       number = 10,
+                       savePredictions = TRUE,
+                       allowParallel = FALSE)
+  train(F,
+        data = data,
+        method = method,
+        trControl = ctrl,
+        metric = "MAE",
+        maximize = FALSE)
+}
+```
+
+eXtreme Gradient Boosting
+
+```{r}
+model(df, "xgbTree") %>% varImp()
+```
+
+Random Forest
+
+```{r}
+model(df, "cforest") %>% varImp()
+```
+
+Conditional Inference Random Forest
+
+```{r}
+model(df, "rf") %>% varImp()
+```
+
+glmnet
+
+```{r}
+model(df, "glmnet") %>% varImp()
+```
