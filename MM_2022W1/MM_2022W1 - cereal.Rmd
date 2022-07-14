@@ -27,7 +27,8 @@ df <-
                                  feature == "Display shelf" ~ "Shelf",
                                  feature == "Weight in ounces per one serving" ~ "Ounces",
                                  feature == "Number of cups in one serving" ~ "Cups",
-                                 feature == "Rating of cereal" ~ "**Rating**"))
+                                 feature == "Rating of cereal" ~ "**Rating**")) %>%
+  mutate(feature = sprintf("%s%s", toupper(substr(feature, 1, 1)), substring(feature, 2)))
 ```
 
 ```{r}
